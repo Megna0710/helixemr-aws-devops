@@ -1,0 +1,97 @@
+# =============================================================================
+#  HelixEMR – Docker Compose (Development / Demo)
+#  Helix Health – Enterprise Electronic Medical Record System
+#  Copyright (C) 2024 Helix Health
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  #  MariaDB Database
+  # ---------------------------------------------------------------------------
+  db:
+    image: mariadb:10.11
+    container_name: helixemr-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootPassword123!
+      MYSQL_DATABASE: helixemr
+      MYSQL_USER: helixemr
+      MYSQL_PASSWORD: helixemr
+    volumes:
+      - helixemr-db-data:/var/lib/mysql
+      - ./liquibase/src/main/resources/liquibase/changelog:/docker-entrypoint-initdb.d/changelog:ro
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - helixemr-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  #  HelixEMR Application
+  # ---------------------------------------------------------------------------
+  app:
+    image: helixhealth/helixemr:${TAG:-1.0.0-SNAPSHOT}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: helixemr-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HELIX_DB_HOSTNAME: db
+      HELIX_DB_PORT: 3306
+      HELIX_DB_NAME: helixemr
+      HELIX_DB_USERNAME: helixemr
+      HELIX_DB_PASSWORD: helixemr
+      HELIX_ADMIN_USER_PASSWORD: Admin1234!
+      JAVA_OPTS: >-
+        -Xmx1g -Xms512m -server
+        -Djava.security.egd=file:/dev/./urandom
+        -Dfile.encoding=UTF-8
+    volumes:
+      - helixemr-app-data:/var/lib/helixemr
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/helixemr/login || curl -sf http://localhost:8080/helixemr/ || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 120s
+    networks:
+      - helixemr-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+# ---------------------------------------------------------------------------
+#  Networks & Volumes
+# ---------------------------------------------------------------------------
+networks:
+  helixemr-net:
+    driver: bridge
+    name: helixemr-network
+
+volumes:
+  helixemr-db-data:
+    driver: local
+    name: helixemr-db-data
+  helixemr-app-data:
+    driver: local
+    name: helixemr-app-data

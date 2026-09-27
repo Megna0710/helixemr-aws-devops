@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  HelixEMR Brand Logo – SVG
+  Helix Health | Enterprise Electronic Medical Record System
+  Copyright (C) 2024 Helix Health <https://helixhealth.io>
+  Mozilla Public License, v. 2.0
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 200 200"
+     width="200" height="200"
+     role="img"
+     aria-label="HelixEMR Logo">
+  <title>HelixEMR – Helix Health</title>
+  <desc>The HelixEMR double-helix medical cross logo representing the fusion of genomic science and clinical care.</desc>
+
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="96" fill="#1A1A2E" stroke="#6200EA" stroke-width="4"/>
+
+  <!-- Helix strand A (deep purple) -->
+  <path d="M 72 30
+           C 72 30, 128 50, 128 75
+           C 128 100, 72 110, 72 130
+           C 72 155, 128 165, 128 170"
+        fill="none" stroke="#6200EA" stroke-width="8"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Helix strand B (violet accent) -->
+  <path d="M 128 30
+           C 128 30, 72 50, 72 75
+           C 72 100, 128 110, 128 130
+           C 128 155, 72 165, 72 170"
+        fill="none" stroke="#AA00FF" stroke-width="8"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Cross bars (DNA rungs) -->
+  <line x1="82" y1="44"  x2="118" y2="36" stroke="#C5CAE9" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="78" y1="60"  x2="122" y2="56" stroke="#C5CAE9" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="76" y1="76"  x2="124" y2="78" stroke="#C5CAE9" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="76" y1="93"  x2="124" y2="95" stroke="#C5CAE9" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="78" y1="110" x2="122" y2="112" stroke="#C5CAE9" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="80" y1="127" x2="120" y2="131" stroke="#C5CAE9" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="84" y1="144" x2="116" y2="150" stroke="#C5CAE9" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="88" y1="160" x2="112" y2="166" stroke="#C5CAE9" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Medical cross overlay (centre) -->
+  <rect x="90" y="82" width="20" height="36" rx="3" fill="white" opacity="0.12"/>
+  <rect x="82" y="90" width="36" height="20" rx="3" fill="white" opacity="0.12"/>
+  <rect x="92" y="84" width="16" height="32" rx="2" fill="white" opacity="0.18"/>
+  <rect x="84" y="92" width="32" height="16" rx="2" fill="white" opacity="0.18"/>
+
+  <!-- Glow nodes at helix intersections -->
+  <circle cx="100" cy="75"  r="5" fill="#6200EA" opacity="0.9"/>
+  <circle cx="100" cy="125" r="5" fill="#AA00FF" opacity="0.9"/>
+</svg>

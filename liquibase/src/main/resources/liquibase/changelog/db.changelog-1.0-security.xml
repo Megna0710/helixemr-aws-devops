@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ================================================================ -->
+    <!--  HelixEMR 1.0 – Users, Roles, Privileges                        -->
+    <!-- ================================================================ -->
+
+    <!-- Users -->
+    <changeSet id="helix-1.0-090" author="helix-engineering">
+        <createTable tableName="helix_users">
+            <column name="user_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="person_id" type="int"/>
+            <column name="username" type="varchar(50)">
+                <constraints unique="true"/>
+            </column>
+            <column name="password" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="salt" type="varchar(128)"/>
+            <column name="secret_question" type="varchar(255)"/>
+            <column name="secret_answer" type="varchar(255)"/>
+            <column name="activation_key" type="varchar(255)"/>
+            <column name="email" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="retired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="retired_reason" type="varchar(255)"/>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator" type="int"/>
+            <column name="date_changed" type="datetime"/>
+            <column name="changed_by" type="int"/>
+            <column name="failed_login_attempts" type="int" defaultValueNumeric="0"/>
+            <column name="last_login_datetime" type="datetime"/>
+            <column name="account_locked" type="boolean" defaultValueBoolean="false"/>
+            <column name="account_locked_until" type="datetime"/>
+        </createTable>
+
+        <createIndex tableName="helix_users" indexName="idx_users_username">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Roles -->
+    <changeSet id="helix-1.0-091" author="helix-engineering">
+        <createTable tableName="helix_role">
+            <column name="role" type="varchar(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)"/>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- User-Role mapping -->
+    <changeSet id="helix-1.0-092" author="helix-engineering">
+        <createTable tableName="helix_user_role">
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="helix_user_role"
+                       columnNames="user_id, role"
+                       constraintName="pk_user_role"/>
+
+        <addForeignKeyConstraint
+            constraintName="fk_user_role_user"
+            baseTableName="helix_user_role"
+            baseColumnNames="user_id"
+            referencedTableName="helix_users"
+            referencedColumnNames="user_id"/>
+
+        <addForeignKeyConstraint
+            constraintName="fk_user_role_role"
+            baseTableName="helix_user_role"
+            baseColumnNames="role"
+            referencedTableName="helix_role"
+            referencedColumnNames="role"/>
+    </changeSet>
+
+    <!-- Privilege -->
+    <changeSet id="helix-1.0-093" author="helix-engineering">
+        <createTable tableName="helix_privilege">
+            <column name="privilege" type="varchar(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)"/>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Audit log -->
+    <changeSet id="helix-1.0-094" author="helix-engineering">
+        <comment>Create helix_audit_log table for PHI access tracking</comment>
+        <createTable tableName="helix_audit_log">
+            <column name="audit_log_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="user_id" type="int"/>
+            <column name="patient_id" type="int"/>
+            <column name="action" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_type" type="varchar(255)"/>
+            <column name="object_id" type="varchar(38)"/>
+            <column name="detail" type="text"/>
+            <column name="ip_address" type="varchar(50)"/>
+            <column name="event_datetime" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="helix_audit_log" indexName="idx_audit_user">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="helix_audit_log" indexName="idx_audit_patient">
+            <column name="patient_id"/>
+        </createIndex>
+        <createIndex tableName="helix_audit_log" indexName="idx_audit_datetime">
+            <column name="event_datetime"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

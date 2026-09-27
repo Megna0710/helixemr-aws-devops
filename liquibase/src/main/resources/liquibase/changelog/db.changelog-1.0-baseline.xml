@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        HelixEMR 1.0 – Baseline: Person, Location, Users, Global Properties
+        Author: Helix Health Engineering
+        Date: 2024-01-01
+    -->
+
+    <!-- ================================================================ -->
+    <!--  Global Properties (system configuration key-value store)       -->
+    <!-- ================================================================ -->
+    <changeSet id="helix-1.0-001" author="helix-engineering">
+        <comment>Create helix_global_property table</comment>
+        <createTable tableName="helix_global_property">
+            <column name="property" type="varchar(255)" remarks="Property key">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="property_value" type="clob" remarks="Property value"/>
+            <column name="description" type="varchar(1024)"/>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="datatype" type="varchar(255)"/>
+            <column name="datatype_config" type="text"/>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_changed" type="datetime"/>
+            <column name="changed_by" type="int"/>
+        </createTable>
+    </changeSet>
+
+    <!-- ================================================================ -->
+    <!--  Person table                                                    -->
+    <!-- ================================================================ -->
+    <changeSet id="helix-1.0-002" author="helix-engineering">
+        <comment>Create helix_person base table</comment>
+        <createTable tableName="helix_person">
+            <column name="person_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="gender" type="varchar(50)"/>
+            <column name="birthdate" type="date"/>
+            <column name="birthdate_estimated" type="boolean" defaultValueBoolean="false"/>
+            <column name="dead" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="death_date" type="date"/>
+            <column name="cause_of_death" type="int"/>
+            <column name="death_date_estimated" type="boolean" defaultValueBoolean="false"/>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="changed_by" type="int"/>
+            <column name="date_changed" type="datetime"/>
+            <column name="voided" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="voided_by" type="int"/>
+            <column name="date_voided" type="datetime"/>
+            <column name="void_reason" type="varchar(255)"/>
+        </createTable>
+
+        <createIndex tableName="helix_person" indexName="idx_person_uuid">
+            <column name="uuid"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Person names -->
+    <changeSet id="helix-1.0-003" author="helix-engineering">
+        <comment>Create helix_person_name table</comment>
+        <createTable tableName="helix_person_name">
+            <column name="person_name_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="person_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="preferred" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prefix" type="varchar(50)"/>
+            <column name="given_name" type="varchar(50)"/>
+            <column name="middle_name" type="varchar(50)"/>
+            <column name="family_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="family_name2" type="varchar(50)"/>
+            <column name="suffix" type="varchar(50)"/>
+            <column name="degree" type="varchar(50)"/>
+            <column name="voided" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            constraintName="fk_person_name_person"
+            baseTableName="helix_person_name"
+            baseColumnNames="person_id"
+            referencedTableName="helix_person"
+            referencedColumnNames="person_id"/>
+    </changeSet>
+
+    <!-- Location -->
+    <changeSet id="helix-1.0-004" author="helix-engineering">
+        <comment>Create helix_location table</comment>
+        <createTable tableName="helix_location">
+            <column name="location_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1024)"/>
+            <column name="address1" type="varchar(255)"/>
+            <column name="address2" type="varchar(255)"/>
+            <column name="city_village" type="varchar(255)"/>
+            <column name="state_province" type="varchar(255)"/>
+            <column name="postal_code" type="varchar(50)"/>
+            <column name="country" type="varchar(255)"/>
+            <column name="latitude" type="varchar(50)"/>
+            <column name="longitude" type="varchar(50)"/>
+            <column name="parent_location" type="int"/>
+            <column name="retired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

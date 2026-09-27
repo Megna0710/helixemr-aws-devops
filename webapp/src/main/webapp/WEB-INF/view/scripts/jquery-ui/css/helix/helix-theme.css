@@ -1,0 +1,750 @@
+/*
+ * HelixEMR Brand Theme
+ * Helix Health – Enterprise Electronic Medical Record System
+ * Copyright (C) 2024 Helix Health <https://helixhealth.io>
+ * Mozilla Public License, v. 2.0
+ */
+
+/* ================================================================
+   CSS Custom Properties – HelixEMR Design Tokens
+   ================================================================ */
+:root {
+    /* Primary palette – Helix deep purple */
+    --helix-primary:        #6200EA;
+    --helix-primary-dark:   #4A00B0;
+    --helix-primary-light:  #9D4EF7;
+    --helix-primary-50:     #F3E5FF;
+    --helix-primary-100:    #E1BEF8;
+
+    /* Accent – electric violet */
+    --helix-accent:         #AA00FF;
+    --helix-accent-light:   #D580FF;
+
+    /* Clinical status colours */
+    --helix-success:        #1B8A44;
+    --helix-warning:        #E65100;
+    --helix-danger:         #C62828;
+    --helix-info:           #0277BD;
+
+    /* Neutral / surface */
+    --helix-surface:        #FFFFFF;
+    --helix-surface-2:      #F5F0FF;
+    --helix-surface-3:      #EDE7F6;
+    --helix-border:         #D1C4E9;
+    --helix-divider:        #EDE7F6;
+
+    /* Text */
+    --helix-text-primary:   #1A1A2E;
+    --helix-text-secondary: #4A4A6A;
+    --helix-text-disabled:  #9E9EC0;
+    --helix-text-on-primary:#FFFFFF;
+
+    /* Sidebar */
+    --helix-sidebar-bg:     #1A1A2E;
+    --helix-sidebar-text:   #C5CAE9;
+    --helix-sidebar-active: #6200EA;
+    --helix-sidebar-hover:  #2D2D4E;
+
+    /* Header */
+    --helix-header-bg:      #6200EA;
+    --helix-header-text:    #FFFFFF;
+
+    /* Typography */
+    --helix-font-base: 'Inter', 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+    --helix-font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --helix-font-size-base: 14px;
+    --helix-line-height: 1.6;
+
+    /* Spacing */
+    --helix-space-xs:   4px;
+    --helix-space-sm:   8px;
+    --helix-space-md:   16px;
+    --helix-space-lg:   24px;
+    --helix-space-xl:   32px;
+    --helix-space-2xl:  48px;
+
+    /* Radius */
+    --helix-radius-sm:  4px;
+    --helix-radius-md:  8px;
+    --helix-radius-lg:  12px;
+    --helix-radius-full: 9999px;
+
+    /* Shadows */
+    --helix-shadow-sm:  0 1px 3px rgba(98,0,234,0.12), 0 1px 2px rgba(0,0,0,0.08);
+    --helix-shadow-md:  0 4px 6px rgba(98,0,234,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    --helix-shadow-lg:  0 10px 15px rgba(98,0,234,0.10), 0 4px 6px rgba(0,0,0,0.05);
+
+    /* Transitions */
+    --helix-transition: 150ms ease-in-out;
+}
+
+/* ================================================================
+   Reset & Base
+   ================================================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: var(--helix-font-size-base);
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: var(--helix-font-base);
+    font-size: var(--helix-font-size-base);
+    line-height: var(--helix-line-height);
+    color: var(--helix-text-primary);
+    background-color: var(--helix-surface-2);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    color: var(--helix-primary);
+    text-decoration: none;
+    transition: color var(--helix-transition);
+}
+a:hover { color: var(--helix-primary-dark); text-decoration: underline; }
+
+/* ================================================================
+   Application Shell
+   ================================================================ */
+.helix-app {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ================================================================
+   Sidebar Navigation
+   ================================================================ */
+.helix-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--helix-sidebar-bg);
+    color: var(--helix-sidebar-text);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: width var(--helix-transition);
+}
+
+.helix-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--helix-space-sm);
+    padding: var(--helix-space-lg) var(--helix-space-md);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    text-decoration: none;
+}
+
+.helix-sidebar-brand-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.helix-sidebar-brand-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.3px;
+}
+
+.helix-sidebar-brand-name span {
+    color: var(--helix-primary-light);
+}
+
+.helix-nav {
+    flex: 1;
+    padding: var(--helix-space-sm) 0;
+    list-style: none;
+    margin: 0;
+}
+
+.helix-nav-section-title {
+    padding: var(--helix-space-md) var(--helix-space-md) var(--helix-space-xs);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(197,202,233,0.5);
+}
+
+.helix-nav-item a {
+    display: flex;
+    align-items: center;
+    gap: var(--helix-space-sm);
+    padding: 10px var(--helix-space-md);
+    color: var(--helix-sidebar-text);
+    text-decoration: none;
+    border-radius: 0;
+    margin: 2px var(--helix-space-sm);
+    border-radius: var(--helix-radius-sm);
+    transition: background var(--helix-transition), color var(--helix-transition);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.helix-nav-item a:hover {
+    background: var(--helix-sidebar-hover);
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.helix-nav-item.active a {
+    background: var(--helix-sidebar-active);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.helix-nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+/* ================================================================
+   Top Header Bar
+   ================================================================ */
+.helix-header {
+    position: fixed;
+    top: 0;
+    left: 260px;
+    right: 0;
+    height: 60px;
+    background: var(--helix-surface);
+    border-bottom: 1px solid var(--helix-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--helix-space-lg);
+    z-index: 900;
+    box-shadow: var(--helix-shadow-sm);
+}
+
+.helix-header-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--helix-text-primary);
+}
+
+.helix-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--helix-space-md);
+}
+
+.helix-user-menu {
+    display: flex;
+    align-items: center;
+    gap: var(--helix-space-sm);
+    cursor: pointer;
+    padding: var(--helix-space-xs) var(--helix-space-sm);
+    border-radius: var(--helix-radius-md);
+    transition: background var(--helix-transition);
+}
+.helix-user-menu:hover { background: var(--helix-surface-2); }
+
+.helix-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--helix-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ================================================================
+   Main Content Area
+   ================================================================ */
+.helix-main {
+    margin-left: 260px;
+    margin-top: 60px;
+    flex: 1;
+    padding: var(--helix-space-xl);
+    min-height: calc(100vh - 60px);
+}
+
+/* ================================================================
+   Cards
+   ================================================================ */
+.helix-card {
+    background: var(--helix-surface);
+    border-radius: var(--helix-radius-lg);
+    box-shadow: var(--helix-shadow-sm);
+    padding: var(--helix-space-lg);
+    margin-bottom: var(--helix-space-lg);
+    border: 1px solid var(--helix-border);
+}
+
+.helix-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--helix-space-md);
+    padding-bottom: var(--helix-space-md);
+    border-bottom: 1px solid var(--helix-divider);
+}
+
+.helix-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--helix-text-primary);
+    margin: 0;
+}
+
+/* ================================================================
+   Dashboard Stat Cards
+   ================================================================ */
+.helix-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--helix-space-md);
+    margin-bottom: var(--helix-space-xl);
+}
+
+.helix-stat-card {
+    background: var(--helix-surface);
+    border-radius: var(--helix-radius-lg);
+    padding: var(--helix-space-lg);
+    box-shadow: var(--helix-shadow-sm);
+    border: 1px solid var(--helix-border);
+    border-left: 4px solid var(--helix-primary);
+    transition: box-shadow var(--helix-transition), transform var(--helix-transition);
+}
+
+.helix-stat-card:hover {
+    box-shadow: var(--helix-shadow-md);
+    transform: translateY(-2px);
+}
+
+.helix-stat-card.accent    { border-left-color: var(--helix-accent); }
+.helix-stat-card.success   { border-left-color: var(--helix-success); }
+.helix-stat-card.warning   { border-left-color: var(--helix-warning); }
+.helix-stat-card.info      { border-left-color: var(--helix-info); }
+
+.helix-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--helix-text-secondary);
+    margin-bottom: var(--helix-space-xs);
+}
+
+.helix-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--helix-text-primary);
+    line-height: 1.1;
+}
+
+.helix-stat-trend {
+    font-size: 12px;
+    margin-top: var(--helix-space-xs);
+    color: var(--helix-success);
+    font-weight: 600;
+}
+
+/* ================================================================
+   Buttons
+   ================================================================ */
+.helix-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--helix-space-xs);
+    padding: 8px 18px;
+    font-family: var(--helix-font-base);
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--helix-radius-md);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: background var(--helix-transition), border-color var(--helix-transition),
+                box-shadow var(--helix-transition), transform var(--helix-transition);
+    text-decoration: none;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.helix-btn:active { transform: translateY(1px); }
+
+.helix-btn-primary {
+    background: var(--helix-primary);
+    color: var(--helix-text-on-primary);
+    border-color: var(--helix-primary);
+}
+.helix-btn-primary:hover {
+    background: var(--helix-primary-dark);
+    border-color: var(--helix-primary-dark);
+    box-shadow: var(--helix-shadow-sm);
+    color: white;
+    text-decoration: none;
+}
+
+.helix-btn-outline {
+    background: transparent;
+    color: var(--helix-primary);
+    border-color: var(--helix-primary);
+}
+.helix-btn-outline:hover {
+    background: var(--helix-primary-50);
+    color: var(--helix-primary-dark);
+    text-decoration: none;
+}
+
+.helix-btn-danger {
+    background: var(--helix-danger);
+    color: white;
+    border-color: var(--helix-danger);
+}
+.helix-btn-danger:hover { background: #B71C1C; border-color: #B71C1C; color: white; }
+
+.helix-btn-sm {
+    padding: 5px 12px;
+    font-size: 12px;
+}
+
+/* ================================================================
+   Tables
+   ================================================================ */
+.helix-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--helix-radius-md);
+}
+
+.helix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.helix-table th {
+    padding: 10px var(--helix-space-md);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--helix-text-secondary);
+    background: var(--helix-surface-3);
+    border-bottom: 2px solid var(--helix-border);
+    white-space: nowrap;
+}
+
+.helix-table td {
+    padding: 10px var(--helix-space-md);
+    border-bottom: 1px solid var(--helix-divider);
+    color: var(--helix-text-primary);
+    vertical-align: middle;
+}
+
+.helix-table tbody tr:hover {
+    background: var(--helix-surface-2);
+}
+
+.helix-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ================================================================
+   Forms
+   ================================================================ */
+.helix-form-group {
+    margin-bottom: var(--helix-space-md);
+}
+
+.helix-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--helix-text-secondary);
+    margin-bottom: var(--helix-space-xs);
+}
+
+.helix-input,
+.helix-select,
+.helix-textarea {
+    width: 100%;
+    padding: 9px var(--helix-space-sm);
+    font-family: var(--helix-font-base);
+    font-size: 14px;
+    color: var(--helix-text-primary);
+    background: var(--helix-surface);
+    border: 1.5px solid var(--helix-border);
+    border-radius: var(--helix-radius-md);
+    outline: none;
+    transition: border-color var(--helix-transition), box-shadow var(--helix-transition);
+}
+
+.helix-input:focus,
+.helix-select:focus,
+.helix-textarea:focus {
+    border-color: var(--helix-primary);
+    box-shadow: 0 0 0 3px rgba(98,0,234,0.12);
+}
+
+.helix-input.error,
+.helix-select.error {
+    border-color: var(--helix-danger);
+}
+
+/* ================================================================
+   Badges & Status Pills
+   ================================================================ */
+.helix-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: var(--helix-radius-full);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.helix-badge-active   { background: #E8F5E9; color: #1B5E20; }
+.helix-badge-inactive { background: #ECEFF1; color: #546E7A; }
+.helix-badge-critical { background: #FFEBEE; color: #B71C1C; }
+.helix-badge-pending  { background: #FFF8E1; color: #E65100; }
+
+/* ================================================================
+   Alerts
+   ================================================================ */
+.helix-alert {
+    padding: var(--helix-space-md);
+    border-radius: var(--helix-radius-md);
+    border-left: 4px solid;
+    margin-bottom: var(--helix-space-md);
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--helix-space-sm);
+}
+
+.helix-alert-success { background: #F1F8E9; border-color: var(--helix-success); color: #1B5E20; }
+.helix-alert-warning { background: #FFF3E0; border-color: var(--helix-warning); color: #BF360C; }
+.helix-alert-danger  { background: #FFEBEE; border-color: var(--helix-danger);  color: #B71C1C; }
+.helix-alert-info    { background: #E3F2FD; border-color: var(--helix-info);    color: #01579B; }
+
+/* ================================================================
+   Login Page
+   ================================================================ */
+.helix-login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%);
+    padding: var(--helix-space-lg);
+}
+
+.helix-login-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--helix-surface);
+    border-radius: var(--helix-radius-lg);
+    box-shadow: var(--helix-shadow-lg);
+    padding: var(--helix-space-2xl);
+}
+
+.helix-login-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--helix-space-xl);
+}
+
+.helix-login-logo img {
+    width: 72px;
+    height: 72px;
+    margin-bottom: var(--helix-space-sm);
+}
+
+.helix-login-app-name {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--helix-primary);
+    letter-spacing: -0.5px;
+}
+
+.helix-login-tagline {
+    font-size: 13px;
+    color: var(--helix-text-secondary);
+    margin-top: 4px;
+}
+
+.helix-login-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--helix-text-primary);
+    margin-bottom: var(--helix-space-lg);
+    text-align: center;
+}
+
+/* ================================================================
+   Patient Card
+   ================================================================ */
+.helix-patient-header {
+    display: flex;
+    align-items: center;
+    gap: var(--helix-space-lg);
+    padding: var(--helix-space-lg);
+    background: linear-gradient(135deg, var(--helix-primary) 0%, var(--helix-primary-dark) 100%);
+    border-radius: var(--helix-radius-lg);
+    color: white;
+    margin-bottom: var(--helix-space-lg);
+}
+
+.helix-patient-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.helix-patient-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.helix-patient-mrn {
+    font-size: 13px;
+    opacity: 0.85;
+    font-family: var(--helix-font-mono);
+}
+
+/* ================================================================
+   Pagination
+   ================================================================ */
+.helix-pagination {
+    display: flex;
+    align-items: center;
+    gap: var(--helix-space-xs);
+    justify-content: center;
+    margin-top: var(--helix-space-lg);
+}
+
+.helix-page-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 var(--helix-space-sm);
+    border: 1.5px solid var(--helix-border);
+    background: var(--helix-surface);
+    border-radius: var(--helix-radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--helix-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--helix-transition), border-color var(--helix-transition);
+}
+
+.helix-page-btn:hover,
+.helix-page-btn.active {
+    background: var(--helix-primary);
+    border-color: var(--helix-primary);
+    color: white;
+}
+
+/* ================================================================
+   Footer
+   ================================================================ */
+.helix-footer {
+    margin-left: 260px;
+    padding: var(--helix-space-md) var(--helix-space-xl);
+    border-top: 1px solid var(--helix-border);
+    background: var(--helix-surface);
+    font-size: 12px;
+    color: var(--helix-text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ================================================================
+   Utilities
+   ================================================================ */
+.helix-text-primary   { color: var(--helix-primary) !important; }
+.helix-text-success   { color: var(--helix-success) !important; }
+.helix-text-danger    { color: var(--helix-danger) !important; }
+.helix-text-warning   { color: var(--helix-warning) !important; }
+.helix-text-muted     { color: var(--helix-text-secondary) !important; }
+
+.helix-mt-0  { margin-top: 0 !important; }
+.helix-mt-sm { margin-top: var(--helix-space-sm) !important; }
+.helix-mt-md { margin-top: var(--helix-space-md) !important; }
+.helix-mt-lg { margin-top: var(--helix-space-lg) !important; }
+
+.helix-d-flex        { display: flex; }
+.helix-align-center  { align-items: center; }
+.helix-justify-between { justify-content: space-between; }
+.helix-gap-sm        { gap: var(--helix-space-sm); }
+.helix-gap-md        { gap: var(--helix-space-md); }
+
+.helix-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ================================================================
+   Responsive
+   ================================================================ */
+@media (max-width: 1024px) {
+    .helix-sidebar {
+        width: 64px;
+    }
+    .helix-sidebar-brand-name,
+    .helix-nav-item a span,
+    .helix-nav-section-title {
+        display: none;
+    }
+    .helix-header {
+        left: 64px;
+    }
+    .helix-main,
+    .helix-footer {
+        margin-left: 64px;
+    }
+}
+
+@media (max-width: 640px) {
+    .helix-sidebar {
+        display: none;
+    }
+    .helix-header {
+        left: 0;
+    }
+    .helix-main,
+    .helix-footer {
+        margin-left: 0;
+    }
+    .helix-stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}

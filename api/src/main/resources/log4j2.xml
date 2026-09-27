@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" name="HelixEMR-API">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="LOG_DIR">/var/lib/helixemr/logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <RollingFile name="RollingFile"
+                     fileName="${LOG_DIR}/helixemr.log"
+                     filePattern="${LOG_DIR}/helixemr-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <RollingFile name="AuditFile"
+                     fileName="${LOG_DIR}/audit.log"
+                     filePattern="${LOG_DIR}/audit-%d{yyyy-MM-dd}.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} AUDIT [%t] %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="90"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- HelixEMR application logs -->
+        <Logger name="io.helixhealth" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+
+        <!-- Audit trail -->
+        <Logger name="io.helixhealth.emr.audit" level="INFO" additivity="false">
+            <AppenderRef ref="AuditFile"/>
+        </Logger>
+
+        <!-- Hibernate SQL (DEBUG for troubleshooting) -->
+        <Logger name="org.hibernate.SQL" level="WARN"/>
+        <Logger name="org.hibernate.type" level="WARN"/>
+
+        <!-- Spring -->
+        <Logger name="org.springframework" level="WARN"/>
+
+        <!-- Liquibase -->
+        <Logger name="liquibase" level="INFO"/>
+
+        <Root level="WARN">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

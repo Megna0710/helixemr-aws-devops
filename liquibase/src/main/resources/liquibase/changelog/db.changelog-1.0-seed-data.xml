@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ================================================================ -->
+    <!--  HelixEMR 1.0 – Essential seed data                             -->
+    <!-- ================================================================ -->
+
+    <!-- Default roles -->
+    <changeSet id="helix-1.0-seed-001" author="helix-engineering">
+        <comment>Insert default HelixEMR roles</comment>
+        <insert tableName="helix_role">
+            <column name="role" value="System Administrator"/>
+            <column name="description" value="Full system access – manage all HelixEMR settings"/>
+            <column name="uuid" value="8d94f280-c2cc-11de-8d13-0010c6dffd0f"/>
+        </insert>
+        <insert tableName="helix_role">
+            <column name="role" value="Clinician"/>
+            <column name="description" value="View and enter clinical data"/>
+            <column name="uuid" value="8d94f112-c2cc-11de-8d13-0010c6dffd0f"/>
+        </insert>
+        <insert tableName="helix_role">
+            <column name="role" value="Nurse"/>
+            <column name="description" value="Nursing workflow – vitals, observations, medication"/>
+            <column name="uuid" value="8d94f30c-c2cc-11de-8d13-0010c6dffd0f"/>
+        </insert>
+        <insert tableName="helix_role">
+            <column name="role" value="Registration Clerk"/>
+            <column name="description" value="Patient registration and demographic management"/>
+            <column name="uuid" value="8d94f3b0-c2cc-11de-8d13-0010c6dffd0f"/>
+        </insert>
+        <insert tableName="helix_role">
+            <column name="role" value="Pharmacist"/>
+            <column name="description" value="Medication dispensing and order review"/>
+            <column name="uuid" value="8d94f454-c2cc-11de-8d13-0010c6dffd0f"/>
+        </insert>
+        <insert tableName="helix_role">
+            <column name="role" value="Lab Technician"/>
+            <column name="description" value="Laboratory result entry and management"/>
+            <column name="uuid" value="8d94f4f8-c2cc-11de-8d13-0010c6dffd0f"/>
+        </insert>
+    </changeSet>
+
+    <!-- Default location -->
+    <changeSet id="helix-1.0-seed-002" author="helix-engineering">
+        <comment>Insert Helix Health default location</comment>
+        <insert tableName="helix_location">
+            <column name="uuid" value="8d6c993e-c2cc-11de-8d13-0010c6dffd0f"/>
+            <column name="name" value="Helix Health Main Campus"/>
+            <column name="description" value="Primary clinical facility"/>
+            <column name="address1" value="1 Helix Drive"/>
+            <column name="city_village" value="HealthCity"/>
+            <column name="country" value="US"/>
+            <column name="retired" valueBoolean="false"/>
+            <column name="creator" valueNumeric="1"/>
+        </insert>
+        <insert tableName="helix_location">
+            <column name="uuid" value="9356400c-a8aa-4a01-bf2f-1b3de50a83c9"/>
+            <column name="name" value="Outpatient Clinic"/>
+            <column name="description" value="General outpatient services"/>
+            <column name="retired" valueBoolean="false"/>
+            <column name="creator" valueNumeric="1"/>
+        </insert>
+        <insert tableName="helix_location">
+            <column name="uuid" value="c0875d99-c9de-4501-bc08-28764cb16ea6"/>
+            <column name="name" value="Emergency Department"/>
+            <column name="description" value="24-hour emergency care"/>
+            <column name="retired" valueBoolean="false"/>
+            <column name="creator" valueNumeric="1"/>
+        </insert>
+    </changeSet>
+
+    <!-- Global properties -->
+    <changeSet id="helix-1.0-seed-003" author="helix-engineering">
+        <comment>Insert HelixEMR global properties</comment>
+        <insert tableName="helix_global_property">
+            <column name="property" value="application.name"/>
+            <column name="property_value" value="HelixEMR"/>
+            <column name="description" value="Application display name"/>
+            <column name="uuid" value="a3b5f9c1-1234-5678-abcd-ef0123456789"/>
+        </insert>
+        <insert tableName="helix_global_property">
+            <column name="property" value="application.vendor"/>
+            <column name="property_value" value="Helix Health"/>
+            <column name="description" value="Vendor organization name"/>
+            <column name="uuid" value="b4c6f0d2-1234-5678-abcd-ef0123456790"/>
+        </insert>
+        <insert tableName="helix_global_property">
+            <column name="property" value="default.locale"/>
+            <column name="property_value" value="en_US"/>
+            <column name="description" value="Default system locale"/>
+            <column name="uuid" value="c5d7f1e3-1234-5678-abcd-ef0123456791"/>
+        </insert>
+        <insert tableName="helix_global_property">
+            <column name="property" value="patient.identifier.type.default"/>
+            <column name="property_value" value="1"/>
+            <column name="description" value="Default patient identifier type ID"/>
+            <column name="uuid" value="d6e8f2f4-1234-5678-abcd-ef0123456792"/>
+        </insert>
+        <insert tableName="helix_global_property">
+            <column name="property" value="login.url"/>
+            <column name="property_value" value="/helixemr/login"/>
+            <column name="description" value="Login page URL"/>
+            <column name="uuid" value="e7f9f3a5-1234-5678-abcd-ef0123456793"/>
+        </insert>
+    </changeSet>
+
+    <!-- Default patient identifier type -->
+    <changeSet id="helix-1.0-seed-004" author="helix-engineering">
+        <insert tableName="helix_patient_identifier_type">
+            <column name="uuid" value="05a29f94-c0ed-11e2-94be-8c13b969e334"/>
+            <column name="name" value="HelixEMR Medical Record Number"/>
+            <column name="description" value="Primary unique identifier for patients in HelixEMR"/>
+            <column name="format" value="[0-9]{6,10}"/>
+            <column name="required" valueBoolean="true"/>
+            <column name="retired" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+
+    <!-- Encounter types -->
+    <changeSet id="helix-1.0-seed-005" author="helix-engineering">
+        <insert tableName="helix_encounter_type">
+            <column name="uuid" value="19218f76-6c39-45f4-8efa-4c5c6c199f50"/>
+            <column name="name" value="Clinic Visit"/>
+            <column name="description" value="Routine outpatient clinic visit"/>
+            <column name="retired" valueBoolean="false"/>
+        </insert>
+        <insert tableName="helix_encounter_type">
+            <column name="uuid" value="55a0d3ea-a4d7-4e88-8f01-5aceb2d3c61b"/>
+            <column name="name" value="Emergency Visit"/>
+            <column name="description" value="Emergency department encounter"/>
+            <column name="retired" valueBoolean="false"/>
+        </insert>
+        <insert tableName="helix_encounter_type">
+            <column name="uuid" value="8d5b2be0-c2cc-11de-8d13-0010c6dffd0f"/>
+            <column name="name" value="Admission"/>
+            <column name="description" value="Inpatient admission"/>
+            <column name="retired" valueBoolean="false"/>
+        </insert>
+        <insert tableName="helix_encounter_type">
+            <column name="uuid" value="8d5b3108-c2cc-11de-8d13-0010c6dffd0f"/>
+            <column name="name" value="Discharge"/>
+            <column name="description" value="Inpatient discharge"/>
+            <column name="retired" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

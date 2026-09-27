@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ================================================================ -->
+    <!--  HelixEMR 1.0 – Patient, Concept, Provider, Visit               -->
+    <!-- ================================================================ -->
+
+    <!-- Patient -->
+    <changeSet id="helix-1.0-010" author="helix-engineering">
+        <comment>Create helix_patient table</comment>
+        <createTable tableName="helix_patient">
+            <column name="patient_id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="medical_record_number" type="varchar(50)">
+                <constraints unique="true"/>
+            </column>
+            <column name="allergy_status" type="varchar(50)"/>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="changed_by" type="int"/>
+            <column name="date_changed" type="datetime"/>
+            <column name="voided" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="voided_by" type="int"/>
+            <column name="date_voided" type="datetime"/>
+            <column name="void_reason" type="varchar(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            constraintName="fk_patient_person"
+            baseTableName="helix_patient"
+            baseColumnNames="patient_id"
+            referencedTableName="helix_person"
+            referencedColumnNames="person_id"/>
+
+        <createIndex tableName="helix_patient" indexName="idx_patient_mrn">
+            <column name="medical_record_number"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Patient identifier types -->
+    <changeSet id="helix-1.0-011" author="helix-engineering">
+        <comment>Create helix_patient_identifier_type table</comment>
+        <createTable tableName="helix_patient_identifier_type">
+            <column name="patient_identifier_type_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text"/>
+            <column name="format" type="varchar(255)"/>
+            <column name="required" type="boolean" defaultValueBoolean="false"/>
+            <column name="retired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Concept -->
+    <changeSet id="helix-1.0-020" author="helix-engineering">
+        <comment>Create helix_concept table</comment>
+        <createTable tableName="helix_concept">
+            <column name="concept_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="retired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="short_name" type="varchar(255)"/>
+            <column name="description" type="text"/>
+            <column name="datatype_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="class_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_set" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="varchar(50)"/>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Provider -->
+    <changeSet id="helix-1.0-030" author="helix-engineering">
+        <comment>Create helix_provider table</comment>
+        <createTable tableName="helix_provider">
+            <column name="provider_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="person_id" type="int"/>
+            <column name="name" type="varchar(255)"/>
+            <column name="identifier" type="varchar(255)"/>
+            <column name="retired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Visit type -->
+    <changeSet id="helix-1.0-040" author="helix-engineering">
+        <comment>Create helix_visit_type table</comment>
+        <createTable tableName="helix_visit_type">
+            <column name="visit_type_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text"/>
+            <column name="retired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Visit -->
+    <changeSet id="helix-1.0-041" author="helix-engineering">
+        <comment>Create helix_visit table</comment>
+        <createTable tableName="helix_visit">
+            <column name="visit_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="patient_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visit_type_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location_id" type="int"/>
+            <column name="date_started" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_stopped" type="datetime"/>
+            <column name="voided" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            constraintName="fk_visit_patient"
+            baseTableName="helix_visit"
+            baseColumnNames="patient_id"
+            referencedTableName="helix_patient"
+            referencedColumnNames="patient_id"/>
+    </changeSet>
+
+</databaseChangeLog>
