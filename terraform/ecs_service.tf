@@ -43,4 +43,10 @@ resource "aws_ecs_service" "helixemr" {
   enable_execute_command  = false
 
   health_check_grace_period_seconds = 0
+
+  lifecycle {
+    ignore_changes = [
+      task_definition
+    ]
+  }
 }

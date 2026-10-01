@@ -61,3 +61,58 @@ resource "aws_iam_role_policy" "secret_access" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "github_actions_ecs_deployment" {
+  name = "HelixEMR-ECS-Deployment"
+  role = "GitHubActions-HelixEMR-ECR"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Sid    = "RegisterHelixEMRTaskDefinition"
+        Effect = "Allow"
+
+        Action = [
+          "ecs:RegisterTaskDefinition",
+          "ecs:DescribeTaskDefinition"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid      = "DeployHelixEMRService"
+        Effect   = "Allow"
+        Action   = "ecs:UpdateService"
+        Resource = "arn:aws:ecs:ap-south-1:891376989557:service/helixemr-cluster/helixemr-service"
+      },
+
+      {
+        Sid    = "ReadHelixEMRDeploymentStatus"
+        Effect = "Allow"
+
+        Action = [
+          "ecs:DescribeServices",
+          "ecs:DescribeTasks"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid      = "PassHelixEMRExecutionRole"
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
+        Resource = "arn:aws:iam::891376989557:role/HelixEMR-ECSTaskExecutionRole"
+
+        Condition = {
+          StringEquals = {
+            "iam:PassedToService" = "ecs-tasks.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
