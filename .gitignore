@@ -44,3 +44,10 @@ logs/
 # Docker
 docker-compose.override.yml
 .claude/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
