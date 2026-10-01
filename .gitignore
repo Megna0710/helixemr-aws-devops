@@ -51,3 +51,12 @@ docker-compose.override.yml
 *.tfstate.*
 crash.log
 crash.*.log
+
+# AWS CLI generated deployment snapshots
+ecs-secrets-policy.json
+ecs-task-trust-policy.json
+ecs-task-definition.json
+ecs-task-definition-current.json
+ecs-task-definition-revision4.json
+.github/workflows/ecs-task-trust-policy.json
+
