@@ -1,46 +1,12 @@
-<div align="center">
-
-# HelixEMR
-
-### Enterprise Electronic Medical Record System
-
-**Helix Health · Java 21 · Spring 6 · Hibernate 6 · MariaDB · Docker**
-
-[![Build Status](https://github.com/Skillfyme-R/Helix/actions/workflows/build.yml/badge.svg)](https://github.com/Skillfyme-R/Helix/actions)
-[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
-[![Spring](https://img.shields.io/badge/Spring-6.1.14-6DB33F?logo=spring&logoColor=white)](https://spring.io)
-[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://hub.docker.com)
-[![MariaDB](https://img.shields.io/badge/MariaDB-10.11-003545?logo=mariadb&logoColor=white)](https://mariadb.org)
-
-</div>
-
----
-
-## Table of Contents
-
-1. [Project Overview](#1-project-overview)
-2. [Business Problem](#2-business-problem)
-3. [Objectives](#3-objectives)
-4. [Key Features](#4-key-features)
-5. [Architecture](#5-architecture)
-6. [Tech Stack](#6-tech-stack)
-7. [Folder Structure](#7-folder-structure)
-8. [Database Design](#8-database-design)
-9. [API Documentation](#9-api-documentation)
-10. [Security Implementation](#10-security-implementation)
-11. [CI/CD Pipeline](#11-cicd-pipeline)
-12. [Deployment Architecture](#12-deployment-architecture)
-13. [Installation & Setup](#13-installation--setup)
-14. [Challenges & Learnings](#14-challenges--learnings)
-15. [Future Enhancements](#15-future-enhancements)
-16. [License](#16-license)
-
----
-
 ## 1. Project Overview
 
 **HelixEMR** is a production-grade, full-stack **Electronic Medical Record (EMR) system** engineered for modern healthcare facilities. Built on a **Java 21 + Spring 6 + Hibernate 6** technology stack and containerised with **Docker + Apache Tomcat 11**, it delivers a complete clinical workflow platform — from patient registration to encounter management, order tracking, and clinical reporting.
+
+### Application Dashboard
+
+![HelixEMR Application Dashboard](docs/screenshots/helixemr-dashboard.png)
+
+*HelixEMR application running successfully through the AWS deployment.*
 
 ### At a Glance
 
@@ -328,12 +294,35 @@ flowchart TB
 ## 7. Folder Structure
 
 ```text
-helixemr-core/
+helixemr-aws-devops/
 ├── .github/
 │   └── workflows/
 │       ├── build.yml          # CI: build, unit tests, integration tests, CodeQL, Docker
-│       └── release.yml        # Release: version bump, WAR artifact, GitHub Release
 │
+├── docs/
+│   └── screenshots/
+│       ├── aws-architecture.png
+│       ├── github-actions-pipeline.png
+│       ├── ecs-service-health.png
+│       ├── ecr-repository.png
+│       ├── alb-health-check.png
+│       ├── cloudwatch-logs.png
+│       └── helixemr-dashboard.png
+│
+├── terraform/
+│   ├── provider.tf
+│   ├── variables.tf
+│   ├── data.tf
+│   ├── networking.tf
+│   ├── security_groups.tf
+│   ├── alb.tf
+│   ├── ecs_cluster.tf
+│   ├── ecs_service.tf
+│   ├── ecs_task_definition.tf
+│   ├── rds.tf
+│   ├── iam_ecs.tf
+│   └── cloudwatch.tf
+|
 ├── api/                       # Core API module (JAR)
 │   ├── src/main/java/io/helixhealth/emr/
 │   │   ├── api/               # 20 service interfaces + PatientDAOImpl
@@ -623,337 +612,614 @@ Expiry action:            Redirect to /login?sessionExpired=true
 
 ## 11. CI/CD Pipeline
 
-### Pipeline Overview
+The repository uses **GitHub Actions** to automate validation, container image publishing, security analysis, and ECS deployment.
 
-```mermaid
-flowchart LR
-    subgraph Triggers["Trigger Events"]
-        PUSH["Push to main\ndevelop / release/**"]
-        PR["Pull Request\nto main / develop"]
-        TAG["Git Tag v*.*.*"]
-    end
+### Pipeline flow
 
-    subgraph CI["GitHub Actions"]
-        direction TB
-
-        subgraph J1["Job 1: build"]
-            B1["Checkout"] --> B2["JDK 21 Setup"]
-            B2 --> B3["mvn verify\n-P skip-all-checks"]
-            B3 --> B4["Upload WAR\nArtifact"]
-        end
-
-        subgraph J2["Job 2: integration-test\nmain only"]
-            I1["Start MariaDB\n10.11 Service"] --> I2["mvn verify\n-P integration-test"]
-        end
-
-        subgraph J3["Job 3: docker\nmain + tags"]
-            D1["Login ghcr.io"] --> D2["Buildx\nMulti-platform"]
-            D2 --> D3["Push Image\n+ Tags"]
-        end
-
-        subgraph J4["Job 4: security\nCodeQL"]
-            S1["Init CodeQL"] --> S2["Compile Java"]
-            S2 --> S3["CodeQL Analysis"]
-        end
-
-        J1 -->|needs| J2
-        J1 -->|needs| J3
-        J1 -->|needs| J4
-    end
-
-    subgraph Release["Release Pipeline"]
-        R1["Tag v*.*.*"] --> R2["Set Maven Version"]
-        R2 --> R3["Build WAR"]
-        R3 --> R4["GitHub Release\n+ Artifact"]
-    end
-
-    Triggers --> CI
-    TAG --> Release
+```text
+Git Push / Pull Request
+        │
+        ▼
+┌──────────────────────────┐
+│ Build & Unit Tests       │
+│ Java 21 + Maven          │
+└────────────┬─────────────┘
+             │
+             ▼
+┌──────────────────────────┐
+│ Integration Tests        │
+│ MariaDB 10.11            │
+└────────────┬─────────────┘
+             │
+             ├───────────────────────┐
+             ▼                       ▼
+┌──────────────────────────┐  ┌──────────────────────────┐
+│ Docker Build & Push      │  │ Security Scan            │
+│ Amazon ECR               │  │ GitHub CodeQL            │
+└────────────┬─────────────┘  └──────────────────────────┘
+             │
+             ▼
+┌──────────────────────────┐
+│ Deploy to ECS Fargate    │
+│ Register Task Definition │
+│ Update ECS Service       │
+│ Wait for Stability       │
+└────────────┬─────────────┘
+             │
+             ▼
+┌──────────────────────────┐
+│ ALB Health Verification  │
+│ /helixemr/health/alive   │
+└──────────────────────────┘
 ```
 
-### Pipeline Stages
+### GitHub Actions jobs
 
-| Stage | Trigger | Duration | Actions |
-|---|---|---|---|
-| **Build & Unit Test** | All pushes and PRs | ~5 min | Compile, unit tests, upload WAR artifact |
-| **Integration Test** | Push to `main` only | ~8 min | Spin up MariaDB service, run integration test suite |
-| **Docker Build & Push** | `main` + release tags | ~6 min | Multi-stage Docker build, push to `ghcr.io` |
-| **CodeQL Security Scan** | All pushes | ~10 min | Static analysis for CWEs and OWASP vulnerabilities |
-| **Release** | Tags `v*.*.*` | ~8 min | Version bump, WAR package, GitHub Release |
+The current workflow contains these jobs:
 
-### Docker Image Tags
+| Job | Purpose |
+|---|---|
+| **Build & Unit Tests** | Compiles the Java application and runs Maven verification |
+| **Integration Tests** | Runs integration tests against MariaDB 10.11 |
+| **Docker Build & Push to ECR** | Builds the application image and publishes both `main` and commit-SHA tags to Amazon ECR |
+| **Security Scan** | Runs GitHub CodeQL analysis for Java |
+| **Deploy to ECS Fargate** | Registers a new ECS task-definition revision and updates the ECS service |
 
+### Image tagging
+
+Images are published to:
+
+```text
+891376989557.dkr.ecr.ap-south-1.amazonaws.com/helixemr
 ```
-ghcr.io/skillfyme-r/helix:main
-ghcr.io/skillfyme-r/helix:1.0.0
-ghcr.io/skillfyme-r/helix:sha-abc1234
+
+The workflow uses:
+
+```text
+:main
+:<commit-sha>
+```
+
+The commit-SHA tag provides immutable deployment traceability from an ECS task back to the exact Git commit.
+
+### GitHub OIDC authentication
+
+The workflow does **not** store long-lived AWS access keys in GitHub Actions.
+
+Instead:
+
+```text
+GitHub Actions
+      │
+      │ OIDC token
+      ▼
+GitHubActions-HelixEMR-ECR
+      │
+      ├── ECR permissions
+      ├── ECS deployment permissions
+      └── iam:PassRole for ECS task execution role
+```
+
+The IAM trust policy restricts role assumption to this repository:
+
+```text
+Megna0710/helixemr-aws-devops
+```
+
+This demonstrates key DevSecOps practices:
+
+- Short-lived federated credentials
+- No hard-coded AWS access keys
+- Repository-scoped trust policy
+- Least-privilege deployment permissions
+
+### Successful CI/CD Pipeline
+
+![GitHub Actions CI/CD Pipeline](docs/screenshots/github-actions-pipeline.png)
+
+*GitHub Actions successfully builds, tests, scans, publishes the Docker image to Amazon ECR, and deploys HelixEMR to Amazon ECS Fargate.*
+
+---
+
+## 12. AWS Deployment Architecture
+
+The AWS environment separates public load-balancing infrastructure, private application workloads, and private database resources.
+
+### High-level architecture
+
+```text
+                         Internet
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │   Application Load   │
+                 │     Balancer        │
+                 │      HTTP :80       │
+                 └──────────┬──────────┘
+                            │
+                            │ HTTP :8080
+                            ▼
+             ┌──────────────────────────────┐
+             │       ECS Fargate            │
+             │     helixemr-service         │
+             │                              │
+             │  ┌────────────────────────┐  │
+             │  │ HelixEMR Container      │  │
+             │  │ Tomcat / Spring / Java  │  │
+             │  │ Port 8080               │  │
+             │  └────────────────────────┘  │
+             └──────────────┬───────────────┘
+                            │
+                            │ TCP :3306
+                            ▼
+             ┌──────────────────────────────┐
+             │        Amazon RDS            │
+             │       MariaDB 10.11          │
+             │      Private Subnets         │
+             └──────────────────────────────┘
+
+       GitHub Actions
+             │
+             ├── OIDC → IAM Role
+             │
+             ▼
+          Amazon ECR
+             │
+             ▼
+       ECS Task Definition
+             │
+             ▼
+       ECS Fargate Service
+```
+
+### AWS Deployment Architecture
+
+![HelixEMR AWS Deployment Architecture](docs/screenshots/aws-architecture.png)
+
+### AWS resources
+
+| Layer | AWS resource | Purpose |
+|---|---|---|
+| Networking | VPC `10.0.0.0/16` | Isolated application network |
+| Networking | Internet Gateway | Internet access for public resources |
+| Networking | Public subnets | ALB placement |
+| Networking | Private ECS subnets | Fargate application tasks |
+| Networking | Private DB subnets | RDS placement |
+| Networking | NAT Gateway | Outbound access for private ECS tasks |
+| Load balancing | Application Load Balancer | Public HTTP entry point |
+| Compute | ECS Fargate | Serverless container runtime |
+| Container registry | Amazon ECR | Stores HelixEMR images |
+| Database | Amazon RDS MariaDB | Persistent application database |
+| Secrets | AWS Secrets Manager | Database/admin password retrieval |
+| Logging | Amazon CloudWatch Logs | ECS application logs |
+| Identity | IAM + GitHub OIDC | Secure CI/CD authentication |
+| IaC | Terraform | Infrastructure management |
+
+### ECS Fargate Service Health
+
+![ECS Fargate Service Health](docs/screenshots/ecs-service-health.png)
+
+*HelixEMR is running on ECS Fargate with a healthy ALB target.*
+
+### Amazon ECR
+
+![Amazon ECR Repository](docs/screenshots/ecr-repository.png)
+
+*HelixEMR container images are stored in Amazon ECR using the `main` branch and Git commit SHA tags.*
+
+### Network segmentation
+
+The VPC is divided into three subnet tiers:
+
+```text
+10.0.0.0/16
+│
+├── Public
+│   ├── 10.0.1.0/24  ap-south-1a
+│   └── 10.0.2.0/24  ap-south-1b
+│
+├── ECS Private
+│   ├── 10.0.11.0/24 ap-south-1a
+│   └── 10.0.12.0/24 ap-south-1b
+│
+└── Database Private
+    ├── 10.0.21.0/24 ap-south-1a
+    └── 10.0.22.0/24 ap-south-1b
+```
+
+The ECS service does not receive a public IP. Traffic enters through the ALB and reaches the Fargate task on port `8080`.
+
+### Security-group flow
+
+```text
+Internet
+   │
+   │ TCP 80
+   ▼
+ALB Security Group
+   │
+   │ TCP 8080
+   ▼
+ECS Security Group
+   │
+   │ TCP 3306
+   ▼
+RDS Security Group
+```
+
+This limits database access to the ECS security group rather than exposing MariaDB publicly.
+
+### Application Load Balancer health check
+
+The target group checks:
+
+```text
+GET /helixemr/health/alive
+```
+
+A successful response is:
+
+```json
+{
+  "status": "UP",
+  "application": "HelixEMR",
+  "version": "1.0.0"
+}
 ```
 
 ---
 
-## 12. Deployment Architecture
+## 13. Infrastructure as Code — Terraform
 
-### Container Architecture
+Terraform is used to manage the AWS infrastructure while preserving the existing application environment.
 
-```mermaid
-flowchart TB
-    subgraph Host["Host Machine / Cloud VM"]
-        subgraph Network["Docker Bridge Network: helixemr-net"]
-            subgraph App["helixemr-app\neclipse-temurin:21-jre-jammy\nPort 8080"]
-                T["Apache Tomcat 11.0.2\nhelixemr.war"]
-            end
+### Terraform configuration
 
-            subgraph DB["helixemr-db\nmariadb:10.11\nPort 3306"]
-                M["MariaDB Engine"]
-                V1[("helixemr-db-data\nPersistent Volume")]
-            end
+The Terraform configuration includes:
 
-            App -->|"JDBC"| DB
-        end
-    end
+- AWS provider
+- VPC and networking
+- Public and private subnets
+- Route tables and associations
+- NAT Gateway and Elastic IP
+- Security groups
+- Application Load Balancer
+- Target group and listener
+- ECS cluster
+- ECS service
+- ECS task definition
+- RDS subnet group
+- RDS MariaDB instance
+- IAM execution role and policies
+- GitHub Actions deployment policy
+- CloudWatch log group
 
-    Browser["Browser :8080/helixemr"] --> App
+### Terraform workflow
+
+```text
+Existing AWS Resources
+        │
+        ▼
+   Inspect / Verify
+        │
+        ▼
+   Write Terraform
+        │
+        ▼
+   terraform import
+        │
+        ▼
+   terraform plan
+        │
+        ▼
+     No Drift
 ```
 
-### Container Configuration
+The infrastructure was reconciled against the existing AWS resources instead of destroying and recreating them.
 
-| Container | Base Image | JVM Memory | Port |
-|---|---|---|---|
-| `helixemr-app` | `eclipse-temurin:21-jre-jammy` | Xmx 1GB / Xms 512MB | 8080 |
-| `helixemr-db` | `mariadb:10.11` | Default | 3306 |
+### Safe Terraform operating model
 
-### Persistent Volumes
+Before changing infrastructure:
 
-| Volume | Mount | Contents |
-|---|---|---|
-| `helixemr-db-data` | `/var/lib/mysql` | All MariaDB data files |
-| `helixemr-app-data` | `/var/lib/helixemr` | Logs, uploads, module storage |
+```powershell
+terraform init
+terraform validate
+terraform plan
+```
 
-### Health Checks
+Review the plan before applying changes:
 
-| Service | Check | Interval |
-|---|---|---|
-| `helixemr-db` | `healthcheck.sh --connect --innodb_initialized` | 10s |
-| `helixemr-app` | `curl -sf http://localhost:8080/helixemr/login` | 30s |
+```powershell
+terraform apply
+```
+
+For this project, imported resources were intentionally reconciled to a **no-change** Terraform plan before moving on.
+
+### Important CI/CD boundary
+
+The ECS service is deployed by GitHub Actions. The ECS service Terraform resource therefore ignores task-definition revision changes:
+
+```hcl
+lifecycle {
+  ignore_changes = [
+    task_definition
+  ]
+}
+```
+
+This prevents Terraform from attempting to roll the ECS service back to an older task-definition revision every time CI/CD publishes a new image.
 
 ---
 
-## 13. Installation & Setup
+## 14. Installation & Local Development
 
 ### Prerequisites
 
-| Requirement | Version | Notes |
-|---|---|---|
-| Docker Desktop | 24+ | Required for container deployment |
-| Docker Compose | v2 | Bundled with Docker Desktop |
-| Git | Any | For repository cloning |
-| Java JDK | 21 | Required for source build only |
-| Maven | 3.9+ | Required for source build only |
+Install:
 
-### Quick Start — Docker (Recommended)
+- Java 21
+- Maven
+- Docker Desktop
+- Git
+- AWS CLI
+- Terraform
+- VS Code or another IDE
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/Skillfyme-R/Helix.git
-cd Helix
+Verify the main tools:
 
-# 2. Start the full stack
+```powershell
+java -version
+mvn -version
+docker --version
+git --version
+aws --version
+terraform version
+```
+
+### Clone the repository
+
+```powershell
+git clone https://github.com/Megna0710/helixemr-aws-devops.git
+cd helixemr-aws-devops
+```
+
+### Run locally with Docker Compose
+
+Build and start the application:
+
+```powershell
 docker compose up --build -d
-
-# 3. Tail logs until ready (~60 seconds)
-docker compose logs -f helixemr-app
-
-# 4. Open the application
-open http://localhost:8080/helixemr
 ```
 
-### Default Credentials
+The application is available at:
 
+```text
+http://localhost:8080/helixemr
 ```
-URL:      http://localhost:8080/helixemr
+
+The local database container listens on container port `3306`. The host-side mapping uses `3307:3306` because a local Windows MySQL service may already occupy host port `3306`.
+
+### Check containers
+
+```powershell
+docker ps
+```
+
+### Stop the local environment
+
+```powershell
+docker compose down
+```
+
+Avoid removing persistent database volumes unless you intentionally want to delete the local database data.
+
+### Local configuration
+
+Use `.env.example` as the reference for environment variables. Do not commit real credentials, passwords, AWS keys, Terraform state, or other secrets.
+
+### Local demo credentials
+
+The application README documents the local demo account:
+
+```text
 Username: admin
 Password: Admin1234!
 ```
 
-### Environment Variables
+These credentials are for local/demo use only and must not be reused as production credentials.
 
-| Variable | Default | Description |
-|---|---|---|
-| `HELIX_DB_HOSTNAME` | `helixemr-db` | MariaDB hostname |
-| `HELIX_DB_PORT` | `3306` | MariaDB port |
-| `HELIX_DB_NAME` | `helixemr` | Database name |
-| `HELIX_DB_USERNAME` | `helixemr` | Database user |
-| `HELIX_DB_PASSWORD` | `helixemr` | Database password |
-| `HELIX_ADMIN_USER_PASSWORD` | `Admin1234!` | Default admin password |
-| `JAVA_OPTS` | `-Xmx1g -Xms512m -server` | JVM startup flags |
+---
 
-### Source Build
+## 15. Deployment & Verification
 
-```bash
-# Build all modules
-mvn package -P skip-all-checks -DskipTests
+### Deployment path
 
-# Deploy WAR to Tomcat
-cp webapp/target/helixemr.war $CATALINA_HOME/webapps/
+A change pushed to `main` follows this path:
 
-# Start Tomcat
-$CATALINA_HOME/bin/startup.sh
+```text
+Developer
+   │
+   ▼
+GitHub
+   │
+   ▼
+GitHub Actions
+   │
+   ├── Maven build
+   ├── Unit tests
+   ├── Integration tests
+   ├── CodeQL
+   └── Docker build
+          │
+          ▼
+       Amazon ECR
+          │
+          ▼
+    ECS task definition
+          │
+          ▼
+    ECS Fargate service
+          │
+          ▼
+      ALB target
+          │
+          ▼
+     Health endpoint
 ```
 
-### Run Tests
+### Deployment verification
 
-```bash
-# Unit tests
-mvn test
+Check the ECS service:
 
-# Integration tests (requires MariaDB on localhost:3306)
-mvn verify -P integration-test
-
-# With code coverage
-mvn verify -P skip-all-checks
-# Report at: target/site/jacoco/index.html
+```powershell
+aws ecs describe-services `
+  --cluster helixemr-cluster `
+  --services helixemr-service `
+  --query "services[0].{Status:status,Desired:desiredCount,Running:runningCount,Pending:pendingCount,TaskDefinition:taskDefinition}" `
+  --output table
 ```
 
-### Docker Management
+Check the ALB health endpoint:
 
-```bash
-# View running containers
-docker compose ps
-
-# Tail application logs
-docker compose logs -f helixemr-app
-
-# Stop (preserves data)
-docker compose down
-
-# Full reset — removes all data
-docker compose down -v
-
-# Rebuild after code changes
-docker compose up --build -d
+```powershell
+curl.exe -i http://helixemr-alb-920014316.ap-south-1.elb.amazonaws.com/helixemr/health/alive
 ```
 
-### Verify Installation
+Expected response:
 
-```bash
-# Application liveness
-curl -sf http://localhost:8080/helixemr/health/alive
-
-# Login page accessible
-curl -si http://localhost:8080/helixemr/login | head -5
+```text
+HTTP/1.1 200 OK
 ```
 
----
+with:
 
-## 14. Challenges & Learnings
-
-### Technical Challenges
-
-#### 1. Spring Security 6 — Dual Application Context Wiring
-
-**Challenge:** `DelegatingFilterProxy` for `springSecurityFilterChain` was wired against the root `WebApplicationContext`, but security beans lived in the MVC child context (DispatcherServlet). This produced `NoSuchBeanDefinitionException` on startup.
-
-**Resolution:** Added `contextAttribute` init-param to `DelegatingFilterProxy` in `web.xml` pointing explicitly to `FrameworkServlet.CONTEXT.helixemr` — the child context holding the security beans.
-
-**Learning:** Spring Security 6 enforces strict context separation. Security beans must be registered in the exact context the filter proxy references.
-
----
-
-#### 2. AntPathRequestMatcher Ambiguity in Spring Security 6
-
-**Challenge:** Spring Security 6 throws an ambiguity exception when `requestMatchers(String...)` is used alongside Spring MVC on the classpath, due to path-matching conflicts between the security filter layer and the MVC dispatcher.
-
-**Resolution:** Replaced all string-based `requestMatchers()` calls with explicit `new AntPathRequestMatcher("/path")` instances, which are unambiguous regardless of the MVC context.
-
----
-
-#### 3. EHCache — Expired Maven Repository SSL Certificate
-
-**Challenge:** EHCache 3.10.8 transitively pulled `jaxb-runtime` from `maven.java.net`, whose SSL certificate expired, causing Docker build failures during dependency resolution.
-
-**Resolution:** Added the `jakarta` classifier to the EHCache dependency, excluded old JAXB transitives, and added explicit `jakarta.xml.bind-api 4.0.2` and `jaxb-runtime 4.0.5` managed dependencies pointing to active Maven Central coordinates.
-
----
-
-#### 4. Missing JPA Persistence Stack
-
-**Challenge:** `PatientServiceImpl` was annotated `@Transactional` but no `DataSource`, `EntityManagerFactory`, or `transactionManager` bean existed. Every service call threw `NoSuchBeanDefinitionException`.
-
-**Resolution:** Added `DriverManagerDataSource`, `LocalContainerEntityManagerFactoryBean` (Hibernate JPA, `hbm2ddl=update`), and `JpaTransactionManager` to `applicationContext-service.xml`. Implemented `PatientDAOImpl` using `@PersistenceContext EntityManager`.
-
----
-
-#### 5. `@PathVariable` Parameter Name Resolution
-
-**Challenge:** Spring MVC 6 requires method parameter names to be present in compiled bytecode for `@PathVariable` without explicit name attributes. Maven was not passing `-parameters` to `javac`.
-
-**Resolution:** Added `<arg>-parameters</arg>` to `maven-compiler-plugin` in the root POM. Added explicit `@PathVariable("patientId")` annotations as defence-in-depth.
-
----
-
-#### 6. `helix_patient` FK Constraint vs JPA Auto-DDL
-
-**Challenge:** Liquibase defines `helix_patient.patient_id` as a FK to `helix_person.person_id`. Inserting a patient via JPA `@GeneratedValue(IDENTITY)` requires a pre-existing person row, creating a two-step insert requirement that was not yet implemented.
-
-**Resolution:** Created `helix_patient_simple` — an auto-increment standalone table with all required patient fields and no person FK — as the active JPA entity table. This enables direct patient registration in a single transaction.
-
----
-
-### Key Learnings
-
-| Area | Learning |
-|---|---|
-| Spring Security 6 | Filter chain wiring requires explicit `contextAttribute` when security beans live in a child application context |
-| Java 21 + Spring 6 | `-parameters` compiler flag is mandatory for reflection-based parameter name resolution |
-| Liquibase + JPA | FK constraints must be reflected in entity design; `hbm2ddl=update` complements but does not replace Liquibase changelogs |
-| Docker Multi-stage Builds | Separating the build stage (JDK 21) from the runtime stage (JRE 21) reduces the final image by approximately 400 MB |
-| Transitive Dependency Management | Expired SSL in transitive repositories requires explicit exclusion and modern classifier alternatives in the BOM |
-
----
-
-## 15. Future Enhancements
-
-| Enhancement | Priority | Business Impact |
-|---|---|---|
-| **FHIR R4 REST API** | High | Bidirectional exchange with national health networks, labs, imaging centres |
-| **Role-Based Access Control (RBAC)** | High | Granular permission enforcement per clinical role (Clinician, Nurse, Pharmacist) |
-| **Full Encounter Workflow** | High | End-to-end encounter creation, observation recording, and order linking |
-| **HL7 v2 Message Ingestion** | High | Receive lab results, ADT events, and pharmacy messages from connected systems |
-| **HikariCP Connection Pool** | Medium | Production-grade pooling with min/max pool sizing and leak detection |
-| **JWT / OAuth2 Authentication** | Medium | Token-based auth enabling mobile apps and third-party API clients |
-| **Redis Session Store** | Medium | Externalise session state from Tomcat for stateless horizontal scaling |
-| **Multi-tenancy** | Medium | Support multiple facilities within a single HelixEMR deployment |
-| **Kubernetes Deployment** | Medium | Helm chart with HPA, PersistentVolumeClaims, and readiness probes |
-| **Clinical Decision Support** | Medium | Rule-based alerts for drug interactions, allergy conflicts, abnormal lab values |
-| **PDF Report Generation** | Low | Exportable patient summaries using iText or JasperReports |
-| **Two-Factor Authentication** | Low | TOTP as second factor for privileged accounts |
-| **Audit Log Viewer** | Low | In-application audit trail viewer for compliance officers |
-| **AI Clinical Summaries** | Future | LLM-generated encounter summaries and diagnostic suggestions |
-
----
-
-## 16. License
-
+```json
+{
+  "status": "UP",
+  "application": "HelixEMR",
+  "version": "1.0.0"
+}
 ```
-Mozilla Public License Version 2.0
+
+### Application Health Verification
+
+![ALB Health Check](docs/screenshots/alb-health-check.png)
+
+*The Application Load Balancer successfully routes traffic to the healthy HelixEMR ECS task.*
+
+### CloudWatch logs
+
+ECS application logs are written to:
+
+```text
+/ecs/helixemr
 ```
+
+This provides a central location for diagnosing application startup, database connectivity, and runtime issues.
+
+
+![HelixEMR CloudWatch Logs](docs/screenshots/cloudwatch-logs.png)
+
+*HelixEMR ECS application logs are centralized in Amazon CloudWatch Logs.*
+
+### Deployment traceability
+
+Every CI/CD deployment uses the Git commit SHA as an ECR image tag. This makes it possible to identify which source revision produced the container currently deployed to ECS.
+
+---
+
+## 16. Challenges & Learnings
+
+### Application-level challenges
+
+The project involved troubleshooting:
+
+- Spring Security context wiring
+- CSRF-aware authentication
+- `AntPathRequestMatcher` behavior
+- EHCache SSL certificate issues
+- JPA/Hibernate persistence configuration
+- `@PathVariable` parameter handling
+- Foreign-key constraints versus JPA automatic schema generation
+- Database connectivity across Docker and AWS environments
+
+### AWS / DevOps challenges
+
+Additional infrastructure and deployment work included:
+
+- Migrating database configuration from local Docker hostnames to environment-driven configuration
+- Connecting ECS Fargate privately to RDS
+- Configuring ALB health checks for a WAR-based Tomcat application
+- Resolving ECS task-definition and service deployment behavior
+- Implementing GitHub OIDC instead of static AWS credentials
+- Restricting GitHub Actions IAM permissions for deployment
+- Managing secrets through AWS Secrets Manager
+- Reconciling existing AWS resources into Terraform without recreating them
+- Handling Terraform drift caused by CI/CD-managed ECS task-definition revisions
+- Debugging ECR authentication and image-push workflows
+- Verifying the complete path from Git commit to a healthy ALB endpoint
+
+### Key DevOps lessons
+
+1. **Separate application configuration from code.**
+   Database endpoints and credentials should be injected through environment variables and secrets.
+
+2. **Use immutable image tags for deployments.**
+   A commit-SHA image tag provides reliable release traceability.
+
+3. **Prefer OIDC for GitHub Actions.**
+   Short-lived federated credentials remove the need for long-lived AWS access keys.
+
+4. **Treat Terraform as the source of truth carefully.**
+   Existing infrastructure should be imported and reconciled rather than casually recreated.
+
+5. **Define ownership boundaries between Terraform and CI/CD.**
+   Infrastructure configuration and application release configuration should not continuously fight over the same ECS task-definition revision.
+
+6. **Health checks are part of deployment design.**
+   A deployment is not complete merely because an ECS task is running; the load balancer must be able to reach a meaningful application health endpoint.
+
+---
+
+## 17. Future Enhancements
+
+### Application enhancements
+
+- FHIR R4 support
+- HL7 integration
+- Role-based access control improvements
+- OAuth2 / OpenID Connect
+- Redis caching
+- HikariCP tuning
+- Multi-tenancy
+- Clinical Decision Support
+- PDF/report generation
+- Two-factor authentication
+- Enhanced audit viewer
+- AI-assisted clinical workflows
+
+### AWS / DevOps enhancements
+
+- HTTPS with ACM and an appropriate domain name
+- Route 53 DNS
+- WAF protection for the public ALB
+- CloudWatch dashboards and alarms
+- SNS-based operational notifications
+- Container image vulnerability scanning with Trivy
+- Automated rollback using ECS deployment circuit breakers
+- Blue/green or canary deployment strategies
+- ECS autoscaling based on CPU/memory or application metrics
+- RDS encryption and stronger backup/retention policies
+- Terraform remote state with S3 and state locking
+- Separate development, staging, and production environments
+- Terraform modules for reusable infrastructure
+- Pull-request Terraform plan checks
+- Enhanced observability with Prometheus/Grafana or AWS-native telemetry
+
+---
+
+## 18. License
 
 This project is licensed under the **Mozilla Public License 2.0 (MPL 2.0)**.
 
-> Licensed and maintained by **Learnsyte Learning Private Limited (Skillfyme)**.
->
-> You may use, modify, and distribute this software under the terms of the MPL 2.0.
-> Files modified under MPL 2.0 must remain under MPL 2.0.
-> Larger combined works may be distributed under different terms.
-
-Full license text: [https://mozilla.org/MPL/2.0/](https://mozilla.org/MPL/2.0/)
-
----
-
-<div align="center">
-
-**Built by [Skillfyme](https://skillfyme.in) — Learnsyte Learning Private Limited**
-
-*Empowering healthcare through enterprise-grade open source technology.*
-
-</div>
+The original HelixEMR application is associated with Learnsyte Learning Private Limited / Skillfyme. Refer to the repository's license files and original project documentation for the applicable licensing terms.
